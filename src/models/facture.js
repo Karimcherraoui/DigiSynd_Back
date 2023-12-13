@@ -11,5 +11,5 @@ const factureSchema = new mongoose.Schema({
     }
 })
 
-const facture = mongoose.model('Facture', factureSchema);
+const facture = mongoose.model('facture', factureSchema);
 export default facture 
