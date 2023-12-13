@@ -8,8 +8,11 @@ const apartSchema = new mongoose.Schema({
   cin: { type: String, required: true , unique: true },
   numberApart: { type: Number, required: true , unique: true , min: 1},
   floor: { type: Number, required: true },
-  // i need status for the apartment if payed or not
-  
+ 
+  createdAt: {
+    type: Date,
+    default: new Date(),
+  },  
 
 });
 
