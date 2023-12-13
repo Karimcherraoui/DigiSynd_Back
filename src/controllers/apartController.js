@@ -1,15 +1,39 @@
 import { json } from "express";
 import Apart from "../models/apartment";
+  import Facture from "../models/facture";
 import { Types } from "mongoose";
 export const apartController = {
   getAparts: async (req, res) => {
     try {
-      const aparts = await Apart.find()
-      res.status(200).json(aparts);
+        const apartments = await Apart.find();
+        const apartsID =  apartments.map((apart) => apart._id);
+        const result = await Facture.aggregate([
+        {
+          $match: {
+            apartment: { $in: apartsID },
+          },
+        },
+        {
+          $group: {
+            _id: "$apartment",
+          },
+        },
+      ]);
+  
+      const payedAparts = result.map((entry) => entry._id);
+      console.log(payedAparts);
+      
+      const aparts = apartments.map((apart) => ({
+        ...apart.toObject(),
+        isPaid: payedAparts.some((id) => id.equals(apart._id)),
+      }));
+  
+      res.status(200).json( aparts );
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
+  
 
   createApart: async (req, res) => {
     try {
@@ -68,32 +92,28 @@ export const apartController = {
         .json({ message: "Error deleting the apartment", error: error.message });
     }
   },
-  // payApart: async (req, res) => {
-  //   try {
-  //     const { id } = req.params;
+  updatePaymentStatus: async (req, res) => {
+    const { id } = req.params;
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(404).send("No Apartment with that id");
+    }
+  
+    try {
+      
+      const savedFacture = await Facture.create({
+        apartment: id,
+      });
 
-  //     if (!Types.ObjectId.isValid(id)) {
-  //       return res.status(404).send("No Apartment with that id");
-  //     }
-
-  //     const PaydApartment = await Apartment.findById(id);
-
-  //     const isPayd = PaydApartment.Pays.includes(adminId);
-
-  //     if (isPayd) {
-  //       PaydApartment.Pays = PaydApartment.Pays.filter(
-  //         (PayadminId) => PayadminId !== adminId
-  //       );
-  //     } else {
-  //       PaydApartment.Pays.push(adminId);
-  //     }
-
-  //     const updatedApartment = await PaydApartment.save();
-
-  //     res.json({ Pays: updatedApartment.Pays });
-  //   } catch (error) {
-  //     console.error(`Error liking Apartment with id ${id}:`, error);
-  //     res.status(500).json({ error: "Internal Server Error" });
-  //   }
-  // },
+  
+      res.json({
+        message: "Payment status updated successfully",
+        facture: savedFacture,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error updating payment status",
+        error: error.message,
+      });
+    }
+  },
 };
