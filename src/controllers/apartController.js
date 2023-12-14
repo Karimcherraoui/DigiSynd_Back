@@ -21,7 +21,7 @@ export const apartController = {
       ]);
   
       const payedAparts = result.map((entry) => entry._id);
-      console.log(payedAparts);
+
       
       const aparts = apartments.map((apart) => ({
         ...apart.toObject(),
@@ -84,7 +84,9 @@ export const apartController = {
     }
 
     try {
+      await Facture.findOneAndDelete({ apartment: id });
       await Apart.findByIdAndDelete(id);
+     
       res.json({ message: "apartment deleted successfully" });
     } catch (error) {
       res
@@ -104,10 +106,13 @@ export const apartController = {
         apartment: id,
       });
 
+      const apartment = await Apart.findById(id);
+
   
       res.json({
         message: "Payment status updated successfully",
         facture: savedFacture,
+        apartment: apartment,
       });
     } catch (error) {
       res.status(500).json({
