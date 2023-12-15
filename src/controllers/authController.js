@@ -10,6 +10,7 @@ const registrationSchema = Joi.object({
     fullName: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+    confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
     role: Joi.string().valid('admin', 'superAdmin').default('admin'),
 
 });
@@ -27,7 +28,7 @@ login : async(req,res)=>{
 
 
         if (admin && (await argon.verify(admin.password, password))) {
-            const token = jwt.sign({ adminId: admin._id , email : admin.email ,fullName: admin.fullName}, process.env.SECRET_KEY, { expiresIn: '1h' });
+            const token = jwt.sign({ adminId: admin._id , email : admin.email ,fullName: admin.fullName , role: admin.role}, process.env.SECRET_KEY, { expiresIn: '1h' });
             const { password: _, ...adminWithoutPassword } = admin.toObject();
             return res.status(201).json({ token , admin: adminWithoutPassword });
         } else {
@@ -45,7 +46,6 @@ login : async(req,res)=>{
             const { error } = registrationSchema.validate(req.body);
             if (error) {
               return res.status(400).json({ error: error.details[0].message });
-              console.log(error)
             }
         
             const { fullName, email, password , role } = req.body;
