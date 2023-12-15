@@ -2,6 +2,7 @@ import { Router } from "express"
 import apartmentRoute from "./apartRoute"
 import AuthRoutes from "./authRoute"
 
+
 import { json } from "express"; 
 
 
