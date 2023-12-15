@@ -8,23 +8,15 @@ export const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: "Access denied" });
   const [, token] = tokenWithBearer.split(" ");
   
-  
   try {
-
-   
-    if(token.length >= 500) {
-      const decoded = jwt.decode(token);
+    if(token) {
+      const decoded = jwt.verify(token, process.env.SECRET_KEY);
+      console.log(decoded);
       req.admin = {
         adminId: decoded.sub,
         fullName : decoded.fullName,
         email: decoded.email,
-      };
-    } else {
-      const decoded = jwt.verify(token, process.env.SECRET_KEY);
-      req.admin = {
-        adminId: decoded.adminId,
-        email: decoded.email,
-        fullName : decoded.fullName,
+        role:decoded.email
       };
     }
     next();
