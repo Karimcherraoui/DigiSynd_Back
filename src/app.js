@@ -1,12 +1,7 @@
 import "./config"
 import express from "express";
 import router from "./routes";
-const app = express();
-const bodyParser = require('body-parser');
- 
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-
+const app = express(); 
 const cors = require('cors');
 
 app.use(cors({
