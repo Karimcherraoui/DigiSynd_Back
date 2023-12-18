@@ -28,7 +28,7 @@ login : async(req,res)=>{
 
 
         if (admin && (await argon.verify(admin.password, password))) {
-            const token = jwt.sign({ adminId: admin._id , email : admin.email ,fullName: admin.fullName , role: admin.role}, process.env.SECRET_KEY, { expiresIn: '1h' });
+            const token = jwt.sign({ adminId: admin._id , email : admin.email ,fullName: admin.fullName , role: admin.role}, process.env.SECRET_KEY, { expiresIn: '5h' });
             const { password: _, ...adminWithoutPassword } = admin.toObject();
             return res.status(201).json({ token , admin: adminWithoutPassword });
         } else {
