@@ -7,8 +7,8 @@ const apartSchema = new mongoose.Schema({
   phone: { type: Number, required: true , unique: true},
   cin: { type: String, required: true , unique: true },
   numberApart: { type: Number, required: true , unique: true , min: 1},
+  // monthsPaid: { type:[Date], required: true , default: []},
   floor: { type: Number, required: true },
- 
   createdAt: {
     type: Date,
     default: new Date(),
