@@ -11,7 +11,6 @@ export const authenticateToken = (req, res, next) => {
   try {
     if(token) {
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
-      console.log(decoded);
       req.admin = {
         adminId: decoded.sub,
         fullName : decoded.fullName,
