@@ -5,6 +5,10 @@ const factureSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "apartment", 
       },
+      paymentFacture: {
+        type:[Date],
+        default: []
+      },
     createdAt : {
         type : Date,
         default : new Date(),
