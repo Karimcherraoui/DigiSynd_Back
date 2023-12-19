@@ -15,7 +15,7 @@ export const authenticateToken = (req, res, next) => {
         adminId: decoded.sub,
         fullName : decoded.fullName,
         email: decoded.email,
-        role:decoded.email
+        role:decoded.role
       };
     }
     next();
