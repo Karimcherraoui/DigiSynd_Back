@@ -5,10 +5,7 @@ import "dotenv/config"
 const db = mongoose
 const link = process.env.CONNECTION_LINK
 
-  mongoose.connect(link, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  mongoose.connect(link)
   .then(() => {
     console.log('Connected to MongoDB');
   })
