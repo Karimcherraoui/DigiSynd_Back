@@ -2,58 +2,86 @@ import { json } from "express";
 import Apart from "../models/apartment";
 import Facture from "../models/facture";
 import { Types } from "mongoose";
+import errorHandler from "../utils/errorHandler"  
+
+
+
+const Joi = require('joi');
+
+const registrationSchema = Joi.object({
+
+  firstNameOwner: Joi.string().required(),
+  lastNameOwner: Joi.string().required(),
+  phone: Joi.number().min(9).max(13).required(),
+  cin: Joi.string().min(3).max(10).required(),
+  numberApart: Joi.number().min(1).max(3).required(),
+  floor: Joi.number().min(1).max(2).required(),
+
+   
+});
+
+
+
 export const apartController = {
-  getAparts: async (req, res) => {
+  getAparts: async (req, res,next) => {
     try {
 
       const factures = await Facture.find();
       const apartments = await Apart.find();
       const aparts = apartments.map((apart) => {
         const facture = factures.find(
-          (f) => f.apartment.toString() === apart._id.toString()
+          (facture) => facture.apartment.toString() === apart._id.toString()
         );
-        const isPaid = facture.paymentFacture
-          .map((date) =>
+        const isPaid =
+        facture?.paymentFacture
+          ?.map((date) =>
             new Date(date).toLocaleDateString("fr-MA", {
               year: "2-digit",
               month: "2-digit",
             })
           )
-          .includes(
+          ?.includes(
             new Date().toLocaleDateString("fr-MA", {
               year: "2-digit",
               month: "2-digit",
             })
-          );
+          ) ?? false;
         return { ...apart.toObject(), isPaid };
       });
      
 
       res.status(200).json(aparts);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(new errorHandler( error.message , 500))
     }
   },
 
- getPaymentFacture : async (req,res) => {
+ getPaymentFacture : async (req,res,next) => {
   const { id } = req.params;
 
     try {
       const facture = await Facture.findOne({ apartment: id });
       if (!facture) {
-        return null; 
+        // return res.status(404).json({ error: "No facture found" }); 
+        next(new errorHandler( error.message , 404));
+
       }
       return res.json( facture.paymentFacture);
     } catch (error) {
-      console.error(error);
-      throw new Error("Error retrieving paymentFacture");
+      next(new errorHandler( error.message , 500));
     }
   },
 
 
 
-  createApart: async (req, res) => {
+  createApart: async (req, res,next) => {
     try {
+
+      const { error } = registrationSchema.validate(req.body);
+      if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+      }
+
       const { firstNameOwner, lastNameOwner, phone, cin, numberApart, floor } =
         req.body;
 
@@ -91,8 +119,9 @@ export const apartController = {
         facture: savedFacture,
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal server error" });
+     
+      next(new errorHandler( error.message , 500))
+
     }
   },
 
@@ -104,7 +133,11 @@ export const apartController = {
       return res.status(404).send("No Apartment with that id");
     }
     const updatedApart = await Apart.findByIdAndUpdate(id, body, { new: true });
-    res.json(updatedApart);
+    // res.json(updatedApart);
+    res.status(201).json({
+      message: "Apartment updated successfully",
+      apartment: updatedApart,
+    });
   },
 
   deleteApart: async (req, res) => {
@@ -120,12 +153,8 @@ export const apartController = {
 
       res.json({ message: "apartment deleted successfully" });
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error deleting the apartment",
-          error: error.message,
-        });
+        next(new errorHandler( error.message , 500))
+
     }
   },
   updatePaymentStatus: async (req, res) => {
@@ -168,7 +197,7 @@ export const apartController = {
         await facture.save();
       }
 
-      res.json({
+      res.status(201).json({
         message: "Payment status updated successfully",
         facture: paymentFacture,
       });
