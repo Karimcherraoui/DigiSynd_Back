@@ -2,6 +2,7 @@
 import Admin from "../models/admin"
 import jwt from 'jsonwebtoken';
 import argon from "argon2"
+import errorHandler from "../utils/errorHandler";
 
 
 const Joi = require('joi');
@@ -9,7 +10,7 @@ const Joi = require('joi');
 const registrationSchema = Joi.object({
     fullName: Joi.string().required(),
     email: Joi.string().email().required(),
-    password: Joi.string().required(),
+    password: Joi.string().min(6).required(),
     confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
     role: Joi.string().valid('admin', 'superAdmin').default('admin'),
 
@@ -19,7 +20,7 @@ export const AuthController = {
 
 
     
-login : async(req,res)=>{
+login : async(req,res,next)=>{
     try{
         const email = req.body.email
         const password = req.body.password
@@ -35,36 +36,36 @@ login : async(req,res)=>{
             return res.status(401).json({ error: 'Email or Password incorrect' });
         }
     }catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(new errorHandler( error.message , 500))
+
     }
     },
 
 
-    register : async (req,res) =>{
-        try {
-            const { error } = registrationSchema.validate(req.body);
-            if (error) {
-              return res.status(400).json({ error: error.details[0].message });
+    register : async (req,res,next) =>{
+            try {
+                const { error } = registrationSchema.validate(req.body);
+                if (error) {
+                return res.status(400).json({ error: error.details[0].message });
+                }
+            
+                const { fullName, email, password , role } = req.body;
+
+                const hashedPass = await argon.hash(password)
+
+
+                const newAdmin = new Admin({fullName , email ,role , password:hashedPass})
+                const savedAdmin = await newAdmin.save();
+                const { password: _, ...adminWithoutPassword } = savedAdmin.toObject();
+
+            res.status(201).json({
+                message: 'Admin created successfully',
+                admin: adminWithoutPassword,
+            });
+
+            }catch (error) {
+                next(new errorHandler( error.message , 500))
+
             }
-        
-            const { fullName, email, password , role } = req.body;
-
-            const hashedPass = await argon.hash(password)
-
-
-            const newAdmin = new Admin({fullName , email ,role , password:hashedPass})
-            const savedAdmin = await newAdmin.save();
-            const { password: _, ...adminWithoutPassword } = savedAdmin.toObject();
-
-        res.status(201).json({
-            message: 'Admin created successfully',
-            admin: adminWithoutPassword,
-        });
-
-        }catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Enter valid information' });
-          }
-    },
+        },
 };
