@@ -1,9 +1,9 @@
 import app from "../app";
 import request from "supertest";
+import mongoose from "mongoose";
 
-describe("Test authController", () => {
 
-
+describe("Test authController",  () => {
 
     let authToken;
 
@@ -19,7 +19,9 @@ describe("Test authController", () => {
     
     });
     
-
+    afterAll(async () => {
+        await mongoose.disconnect();
+      });
 
 	it("should login", async () => {
 		const response = await request(app).post("/admin/login").accept("*").send({
