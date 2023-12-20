@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import app from "../app";
 import request from "supertest";
 
@@ -21,6 +22,10 @@ describe("Test apartController", () => {
     authToken = authResponse.body.token;
     
     });
+
+    afterAll(async () => {
+        await mongoose.disconnect();
+      });
     
     it("should get all aparts", async () => {
         const response = await request(app).get("/apartment").set('Authorization', `Bearer ${authToken}`).accept("*").send()
@@ -53,7 +58,7 @@ describe("Test apartController", () => {
         expect(response.body).toHaveProperty("message");
         expect(response.body).toHaveProperty("facture");
 
-    }),
+    });
 
     it("Should delete apart " , async()=>{
         const apartID = "6580cccd0f14de570273e571"
@@ -62,7 +67,7 @@ describe("Test apartController", () => {
         expect(response.body).toHaveProperty("message");
 
     
-    })
+    });
 
     it("should update apart", async () => {
 
@@ -78,7 +83,7 @@ describe("Test apartController", () => {
         expect(response.body).toHaveProperty("apartment");
         expect(response.body).toHaveProperty("message");
 
-    }),
+    });
 
     it("should update Payement Status", async () => {
             
@@ -93,7 +98,7 @@ describe("Test apartController", () => {
             expect(response.body).toHaveProperty("facture");
             expect(response.body).toHaveProperty("message");
     
-        }),
+        });
 
 
     it("should create apartment with error 500", async () => {
@@ -111,7 +116,7 @@ describe("Test apartController", () => {
         expect(response.status).toBe(500);
         expect(response).toHaveProperty("text");
 
-    }),
+    });
     it("should create apartment with error 400", async () => {
 
 
@@ -138,20 +143,20 @@ describe("Test apartController", () => {
         expect(response.status).toBe(500);
         expect(response).toHaveProperty("text");
 
-    }),
+    });
 
     it("should update apart with error", async () => {
 
         const apartID = "657629f2a98a0d85fb1155caa"
 
         const response = await request(app).patch(`/apartment/${apartID}`).set('Authorization', `Bearer ${authToken}`).accept("*").send({
-            firstNameOwner: "kimo",
+            firstNameOwner: "karimm",
             lastNameOwner: "cherra",
         })
 
         expect(response.status).toBe(404);
 
-    })
+    });
 
 
 
