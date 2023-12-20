@@ -6,7 +6,7 @@
 		"start:dev": "nodemon --exec babel-node ./src/server.js",
 		"start": "babel-node --trace-deprecation ./src/server.js",
 		"build": "babel ./ -d dist",
-		"test" : "jest --config jest.config.js --collectCoverage --testTimeout=3000"
+		"test" : "jest --config jest.config.js --collectCoverage --testTimeout=3000  --detectOpenHandles"
 	},
 	"dependencies": {
 		"argon2": "^0.31.2",
