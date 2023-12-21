@@ -12,7 +12,7 @@ const registrationSchema = Joi.object({
 
   firstNameOwner: Joi.string().required(),
   lastNameOwner: Joi.string().required(),
-  phone: Joi.number().min(9).max(13).required(),
+  phone: Joi.number().min(9).max(14).required(),
   cin: Joi.string().min(3).max(10).required(),
   numberApart: Joi.number().min(1).max(3).required(),
   floor: Joi.number().min(1).max(2).required(),
