@@ -41,9 +41,6 @@ describe("Test apartController", () => {
     });
 
     it("should create apart", async () => {
-
-
-
         const response = await request(app).post("/apartment").set('Authorization', `Bearer ${authToken}`).accept("*").send({
             firstNameOwner: "test1",
             lastNameOwner: "test1",
@@ -87,12 +84,8 @@ describe("Test apartController", () => {
 
     it("should update Payement Status", async () => {
             
-
-    
-            const apartID = "6580cdd36c74bfc0408602ea"
-    
+            const apartID = "6580cdd36c74bfc0408602ea"    
             const response = await request(app).patch(`/apartment/pay/${apartID}`).set('Authorization', `Bearer ${authToken}`).accept("*").send()
-    
 
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty("facture");
@@ -129,6 +122,7 @@ describe("Test apartController", () => {
         })
 
         expect(response.status).toBe(400);
+        expect(response).toHaveProperty("text");
 
     })
 
